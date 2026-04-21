@@ -1,0 +1,49 @@
+services:
+  user:
+    build: ./User
+    container_name: user-service
+    ports:
+      - "9001:9001"
+    env_file:
+      - .env
+      - ./User/.env
+    volumes:
+      - ./User:/app
+      - /app/node_modules
+    restart: unless-stopped
+
+  product:
+    build: ./Product
+    container_name: product-service
+    ports:
+      - "9000:9000"
+    env_file:
+      - .env
+    volumes:
+      - ./Product:/app
+      - /app/node_modules
+    restart: unless-stopped
+
+  cart:
+    build: ./Cart
+    container_name: cart-service
+    ports:
+      - "9003:9003"
+    env_file:
+      - .env
+      - ./Cart/.env
+    volumes:
+      - ./Cart:/app
+      - /app/node_modules
+    restart: unless-stopped
+
+  frontend:
+    build: ./front-end
+    container_name: frontend
+    ports:
+      - "5173:5173"
+    volumes:
+      - ./front-end:/app
+      - /app/node_modules
+    command: npm run dev -- --host 0.0.0.0
+    restart: unless-stopped
