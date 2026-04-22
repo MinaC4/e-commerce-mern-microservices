@@ -4,6 +4,7 @@ pipeline {
     environment {
         DOCKERHUB_CREDENTIALS = credentials('dockerhub')
         IMAGE_TAG = "${env.BUILD_NUMBER}"
+        KUBECONFIG = "/var/lib/jenkins/.kube/config"
     }
 
     stages {
@@ -31,6 +32,7 @@ pipeline {
                     sh '''
                         echo $DOCKERHUB_CREDENTIALS_PSW | docker login -u $DOCKERHUB_CREDENTIALS_USR --password-stdin
                     '''
+
                     sh 'docker push minac4/eshtry-mny-user:${IMAGE_TAG}'
                     sh 'docker push minac4/eshtry-mny-product:${IMAGE_TAG}'
                     sh 'docker push minac4/eshtry-mny-cart:${IMAGE_TAG}'
@@ -46,7 +48,9 @@ pipeline {
 
                     sh '''
                         export KUBECONFIG=/var/lib/jenkins/.kube/config
-                        kubectl config use-context minikube
+
+                        echo "Checking Kubernetes connection..."
+                        kubectl get nodes
 
                         cd eshtry-mny
 
