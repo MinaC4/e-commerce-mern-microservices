@@ -37,20 +37,21 @@ pipeline {
         }
 
         stage('Deploy to Kubernetes with Helm') {
-            steps {
-                script {
-                    echo "Deploying with Helm..."
-                    sh '''
-                        cd eshtry-mny
-                        helm upgrade --install eshtry-mny . \
-                          --set images.user=minac4/eshtry-mny-user:${IMAGE_TAG} \
-                          --set images.product=minac4/eshtry-mny-product:${IMAGE_TAG} \
-                          --set images.cart=minac4/eshtry-mny-cart:${IMAGE_TAG} \
-                          --set images.frontend=minac4/eshtry-mny-frontend:${IMAGE_TAG}
-                    '''
-                }
-            }
+    steps {
+        script {
+            echo "🚀 Deploying with Helm to Minikube..."
+            sh '''
+                export KUBECONFIG=/var/lib/jenkins/.kube/config
+                cd eshtry-mny
+                helm upgrade --install eshtry-mny . \
+                  --set images.user=minac4/eshtry-mny-user:${IMAGE_TAG} \
+                  --set images.product=minac4/eshtry-mny-product:${IMAGE_TAG} \
+                  --set images.cart=minac4/eshtry-mny-cart:${IMAGE_TAG} \
+                  --set images.frontend=minac4/eshtry-mny-frontend:${IMAGE_TAG}
+            '''
         }
+    }
+}
     }
 
     post {
