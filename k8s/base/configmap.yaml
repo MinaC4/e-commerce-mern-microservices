@@ -1,0 +1,8 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: app-config
+data:
+  NODE_ENV: "production"
+  MONGO_CLUSTER: "cluster0.inpzonw.mongodb.net"
+  MONGO_DBNAME: "eshtry_mny"
