@@ -20,13 +20,13 @@ pipeline {
         stage('SonarQube Analysis') {
             steps {
                 withSonarQubeEnv('sonarqube') {
-                    sh """
+                    sh '''
                         sonar-scanner \
                         -Dsonar.projectKey=eshtry-mny \
                         -Dsonar.sources=. \
                         -Dsonar.host.url=http://localhost:9000 \
                         -Dsonar.login=$SONAR_TOKEN
-                    """
+                    '''
                 }
             }
         }
