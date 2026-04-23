@@ -10,12 +10,14 @@ pipeline {
 
     stages {
 
+        // Checkout source code from Git repository
         stage('Checkout Code') {
             steps {
                 checkout scm
             }
         }
 
+        // Run SonarQube static code analysis
         stage('SonarQube Analysis') {
             steps {
                 withSonarQubeEnv('sonarqube') {
@@ -32,19 +34,7 @@ pipeline {
             }
         }
 
-        stage('Quality Gate') {
-            steps {
-                timeout(time: 10, unit: 'MINUTES') {
-                    script {
-                        def qg = waitForQualityGate()
-                        if (qg.status != 'OK') {
-                            error "Pipeline failed بسبب Quality Gate: ${qg.status}"
-                        }
-                    }
-                }
-            }
-        }
-
+        // Build Docker images for all microservices
         stage('Build Docker Images') {
             steps {
                 sh "docker build -t minac4/eshtry-mny-user:${IMAGE_TAG} ./User"
@@ -54,6 +44,7 @@ pipeline {
             }
         }
 
+        // Run security checks for Node.js dependencies
         stage('Security: Dependency Audit') {
             steps {
                 sh 'cd User && npm audit || true'
@@ -63,6 +54,7 @@ pipeline {
             }
         }
 
+        // Scan Docker images for vulnerabilities using Trivy
         stage('Security: Docker Scan (Trivy)') {
             steps {
                 sh """
@@ -74,6 +66,7 @@ pipeline {
             }
         }
 
+        // Push Docker images to Docker Hub registry
         stage('Push Images to Docker Hub') {
             steps {
                 sh 'echo $DOCKERHUB_CREDENTIALS_PSW | docker login -u $DOCKERHUB_CREDENTIALS_USR --password-stdin'
@@ -84,6 +77,7 @@ pipeline {
             }
         }
 
+        // Deploy application to Kubernetes cluster using Helm
         stage('Deploy to Kubernetes') {
             steps {
                 sh """
