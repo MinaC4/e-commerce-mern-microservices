@@ -16,16 +16,19 @@ pipeline {
             }
         }
 
+        // ==================== SONARQUBE ====================
         stage('SonarQube Analysis') {
             steps {
                 withSonarQubeEnv('sonarqube') {
-                    sh """
-                        ${SONAR_SCANNER} \
-                        -Dsonar.projectKey=eshtry-mny \
-                        -Dsonar.sources=. \
-                        -Dsonar.host.url=http://localhost:9000 \
-                        -Dsonar.login=$SONAR_TOKEN
-                    """
+                    withCredentials([string(credentialsId: 'sonar-token', variable: 'SONAR_TOKEN')]) {
+                        sh """
+                            ${SONAR_SCANNER} \
+                            -Dsonar.projectKey=eshtry-mny \
+                            -Dsonar.sources=. \
+                            -Dsonar.host.url=http://localhost:9000 \
+                            -Dsonar.login=${SONAR_TOKEN}
+                        """
+                    }
                 }
             }
         }
@@ -38,6 +41,7 @@ pipeline {
             }
         }
 
+        // ==================== BUILD ====================
         stage('Build Docker Images') {
             steps {
                 sh 'docker build -t minac4/eshtry-mny-user:${IMAGE_TAG} ./User'
@@ -47,6 +51,7 @@ pipeline {
             }
         }
 
+        // ==================== SECURITY ====================
         stage('Security: Dependency Audit') {
             steps {
                 sh 'cd User && npm audit || true'
@@ -67,6 +72,7 @@ pipeline {
             }
         }
 
+        // ==================== PUSH ====================
         stage('Push Images to Docker Hub') {
             steps {
                 sh 'echo $DOCKERHUB_CREDENTIALS_PSW | docker login -u $DOCKERHUB_CREDENTIALS_USR --password-stdin'
@@ -78,10 +84,14 @@ pipeline {
             }
         }
 
+        // ==================== DEPLOY ====================
         stage('Deploy to Kubernetes') {
             steps {
                 sh '''
                     export KUBECONFIG=/var/lib/jenkins/.kube/config
+
+                    kubectl get nodes
+                    kubectl get svc
 
                     kubectl apply -f k8s/
 
@@ -89,8 +99,6 @@ pipeline {
                     kubectl set image deployment/product product=minac4/eshtry-mny-product:${IMAGE_TAG}
                     kubectl set image deployment/cart cart=minac4/eshtry-mny-cart:${IMAGE_TAG}
                     kubectl set image deployment/frontend frontend=minac4/eshtry-mny-frontend:${IMAGE_TAG}
-
-                    kubectl get svc
                 '''
             }
         }
@@ -98,7 +106,7 @@ pipeline {
 
     post {
         success {
-            echo 'Pipeline Success'
+            echo 'Pipeline Success - DevSecOps Flow Completed'
         }
         failure {
             echo 'Pipeline Failed'
