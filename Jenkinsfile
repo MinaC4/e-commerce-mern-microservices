@@ -8,10 +8,6 @@ pipeline {
         KUBECONFIG = "/var/lib/jenkins/.kube/config"
     }
 
-    tools {
-        sonarQubeScanner 'sonar-scanner'
-    }
-
     stages {
 
         stage('Checkout Code') {
@@ -28,8 +24,8 @@ pipeline {
                         sonar-scanner \
                         -Dsonar.projectKey=eshtry-mny \
                         -Dsonar.sources=. \
-                        -Dsonar.host.url=${SONAR_HOST_URL} \
-                        -Dsonar.login=${SONAR_TOKEN}
+                        -Dsonar.host.url=http://localhost:9000 \
+                        -Dsonar.login=$SONAR_TOKEN
                     """
                 }
             }
