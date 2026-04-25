@@ -115,7 +115,7 @@ Ports:
 
 ![MongoDB Atlas data model](docs/screenshots/screenshot-02.png)
 
-### Jenkins pipeline run (SonarQube stage)
+### Jenkins pipeline run (stages)
 
 ![Jenkins pipeline stages](docs/screenshots/screenshot-03.png)
 
