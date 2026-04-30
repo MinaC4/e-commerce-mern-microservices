@@ -42,7 +42,7 @@ An e-commerce demo built as **MERN microservices** (Node.js/Express + MongoDB + 
 ├─ docker-compose.yml
 ├─ argocd-application.yaml
 ├─ eshtry-mny/                 # Helm chart (templates + values)
-├─ k8s/base/                   # Plain Kubernetes manifests (reference)
+├─ k8s/base/                   
 ├─ front-end/
 ├─ User/
 ├─ Product/
